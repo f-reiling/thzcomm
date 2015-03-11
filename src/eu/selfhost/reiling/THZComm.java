@@ -322,6 +322,7 @@ public class THZComm {
     }
 
 // </editor-fold>
+    
 // <editor-fold defaultstate="collapsed" desc="Calculate THZ Checksum">
     /**
      * calc checksum: add all bytes, except dummy byte ([2]) and footer for
@@ -343,6 +344,7 @@ public class THZComm {
     }
 
 // </editor-fold>
+    
 //<editor-fold defaultstate="collapsed" desc="Support functions">
     static byte[] hexStringToByteArray(String s) {
         int len = s.length();
