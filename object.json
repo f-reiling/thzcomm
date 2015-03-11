@@ -1,0 +1,245 @@
+{
+    "thzComPort": "/dev/ttyUSB0",
+    "command": [
+        {
+            "description": "DHW status values",
+            "command": "F3",
+            "active": true
+        },
+        {
+            "description": "HC1 status values",
+            "command": "F4",
+            "active": true
+        },
+        {
+            "description": "daily amount electr. energy for hc",
+            "command": "0A091A",
+            "command2": "0A091B",
+            "active": true
+        }
+    ],
+    "response": [
+        {
+            "command": "F3",
+            "dataField": [
+                {
+                    "value": "dhw_temp",
+                    "description": "current hot water temperature",
+                    "start": 4,
+                    "length": 4,
+                    "type": "hex2int",
+                    "divisor": 10,
+                    "unit": "dC"
+                },
+                {
+                    "value": "outside_temp",
+                    "description": "current outside temperature",
+                    "start": 8,
+                    "length": 4,
+                    "type": "hex2int",
+                    "divisor": 10,
+                    "unit": "dC"
+                }
+            ]
+        }
+    ],
+    "opmode": {"1": "standby", "11": "automatic", "3": "DAYmode", "4": "setback", "5": "DHWmode", "14": "manual", "0": "emergency"},
+    "statusValues": [
+        {
+            "value": "dhw_temp",
+            "description": "current hot water temperature",
+            "command": "F3",
+            "start": 2,
+            "length": 4,
+            "type": "hex2dbl",
+            "divisor": 10,
+            "unit": "°C"
+        },
+        {
+            "value": "outside_temp",
+            "description": "current outside temperature",
+            "command": "F3",
+            "start": 6,
+            "length": 4,
+            "type": "hex2dbl",
+            "divisor": 10,
+            "unit": "°C"
+        },
+        {
+            "value": "hc1_return_temp",
+            "description": "current heater circuit1 return temperature",
+            "command": "F4",
+            "start": 10,
+            "length": 4,
+            "type": "hex2dbl",
+            "divisor": 10,
+            "unit": "°C"
+        },
+        {
+            "value": "hc1_flow_temp",
+            "description": "current heater circuit1 flow temperature",
+            "command": "F4",
+            "start": 18,
+            "length": 4,
+            "type": "hex2dbl",
+            "divisor": 10,
+            "unit": "°C"
+        },
+        {
+            "value": "heatEnergyDHWDaily",
+            "description": "daily amount of heat. Energy used for DHW",
+            "command": "0A092A",
+            "start": 6,
+            "length": 4,
+            "type": "hex2int",
+            "factor": 1,
+            "unit": "Wh",
+            "command2": {
+                "command": "0A092B",
+                "start": 6,
+                "length": 4,
+                "type": "hex2int",
+                "factor": 1000
+            }
+        },
+        {
+            "value": "heatEnergyDHWSum",
+            "description": "Amount of heat Energy used for DHW",
+            "command": "0A092C",
+            "start": 6,
+            "length": 4,
+            "type": "hex2int",
+            "factor": 1,
+            "unit": "kWh",
+            "command2": {
+                "command": "0A092D",
+                "start": 6,
+                "length": 4,
+                "type": "hex2int",
+                "factor": 1000
+            }
+        },
+        {
+            "value": "heatEnergyHCDaily",
+            "description": "daily amount of heat. Energy used for HC",
+            "command": "0A092E",
+            "start": 6,
+            "length": 4,
+            "type": "hex2int",
+            "factor": 1,
+            "unit": "Wh",
+            "command2": {
+                "command": "0A092F",
+                "start": 6,
+                "length": 4,
+                "type": "hex2int",
+                "factor": 1000
+            }
+        },
+        {
+            "value": "heatEnergyHCSum",
+            "description": "Amount of heat Energy used for HC",
+            "command": "0A0930",
+            "start": 6,
+            "length": 4,
+            "type": "hex2int",
+            "factor": 1,
+            "unit": "kWh",
+            "command2": {
+                "command": "0A0931",
+                "start": 6,
+                "length": 4,
+                "type": "hex2int",
+                "factor": 1000
+            }
+        },
+        {
+            "value": "elecEnergyDHWDaily",
+            "description": "daily amount of electr. Energy used for DHW",
+            "command": "0A091A",
+            "start": 6,
+            "length": 4,
+            "type": "hex2int",
+            "factor": 1,
+            "unit": "Wh",
+            "command2": {
+                "command": "0A091B",
+                "start": 6,
+                "length": 4,
+                "type": "hex2int",
+                "factor": 1000
+            }
+        },
+        {
+            "value": "elecEnergyDHWSum",
+            "description": "Amount of electr. Energy used for DHW",
+            "command": "0A091C",
+            "start": 6,
+            "length": 4,
+            "type": "hex2int",
+            "factor": 1,
+            "unit": "kWh",
+            "command2": {
+                "command": "0A091D",
+                "start": 6,
+                "length": 4,
+                "type": "hex2int",
+                "factor": 1000
+            }
+        },
+        {
+            "value": "elecEnergyHCDaily",
+            "description": "daily amount of electr. Energy used for HC",
+            "command": "0A091E",
+            "start": 6,
+            "length": 4,
+            "type": "hex2int",
+            "factor": 1,
+            "unit": "Wh",
+            "command2": {
+                "command": "0A091F",
+                "start": 6,
+                "length": 4,
+                "type": "hex2int",
+                "factor": 1000
+            }
+        },
+        {
+            "value": "elecEnergyHCSum",
+            "description": "Amount of electr. Energy used for HC",
+            "command": "0A0920",
+            "start": 6,
+            "length": 4,
+            "type": "hex2int",
+            "factor": 1,
+            "unit": "kWh",
+            "command2": {
+                "command": "0A0921",
+                "start": 6,
+                "length": 4,
+                "type": "hex2int",
+                "factor": 1000
+            }
+        },
+        {
+            "value": "status_dhw_pump",
+            "description": "current dhw pump status",
+            "command": "FB",
+            "start": 42,
+            "length": 1,
+            "type": "bit0",
+            "divisor": 1,
+            "unit": ""
+        },
+        {
+            "value": "booster_stage1",
+            "description": "status Booster stage1",
+            "command": "FB",
+            "start": 44,
+            "length": 1,
+            "type": "bit2",
+            "divisor": 1,
+            "unit": ""
+        }
+    ]
+}
