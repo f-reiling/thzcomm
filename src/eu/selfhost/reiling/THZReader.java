@@ -12,9 +12,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.*;
 import org.json.*;
 
 /**
@@ -27,7 +25,10 @@ public class THZReader {
     THZComm thz;
     JSONObject thzConfig;
     DatagramSocket serverSocket;
-    static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(THZReader.class.getName());
+    static final Logger logger = LogManager.getLogger(THZReader.class.getName());
+    JSONArray thzCommandHistory = new JSONArray();
+    
+    private static final Long THZ_REPEAT_TIMEOUT = 5000L; // if command has been sent within this time, do not request again
 
     /**
      * @param args the command line arguments
@@ -49,7 +50,7 @@ public class THZReader {
             thzConfig = new JSONObject(
                     new String(Files.readAllBytes(Paths.get("object.json"))));
         } catch (IOException ex) {
-            Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
         }
         thz = new THZComm(thzConfig.getString("thzComPort"));
         thz.openThzComm();
@@ -80,9 +81,9 @@ public class THZReader {
                 handleUDPRequest(receivePacket);
             }
         } catch (SocketException ex) {
-            Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -102,7 +103,8 @@ public class THZReader {
             String result2 = null;
             Object resultObj2 = null;
             Object resultObj = null;
-            result1 = thz.requestFromThz(obj.getString("command"));
+
+            result1 = getResponseFromThz(obj.getString("command"));
 
             //TODO: TEST ONLY! 
             //result1 = "0A091E000F000000000000000000000000000000001040";
@@ -112,7 +114,7 @@ public class THZReader {
             }
             resultObj = parseThzResult(obj, result1);
             if (obj.has("command2")) {
-                result2 = thz.requestFromThz(obj.getJSONObject("command2").getString("command"));
+                result2 = getResponseFromThz(obj.getJSONObject("command2").getString("command"));
 
                 //TODO: TEST ONLY!
                 //result2 = "0A091F00FF";
@@ -225,7 +227,7 @@ public class THZReader {
                 }
             }
         } catch (JSONException ex) {
-            Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return null;
@@ -243,7 +245,7 @@ public class THZReader {
                 }
             }
         } catch (JSONException ex) {
-            Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -270,7 +272,7 @@ public class THZReader {
             resultObj.put("dataField", reqObj.getString("dataField"));
             resultObj.put("unit", result.getString("unit"));
             resultObj.put("timestamp", System.currentTimeMillis());
-            
+
             if (result == null) {
                 resultObj.put("value", "invalid");
             } else {
@@ -291,7 +293,62 @@ public class THZReader {
                     = new DatagramPacket(sendData, sendData.length, IPAddress, port);
             serverSocket.send(sendPacket);
         } catch (IOException ex) {
-            Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    /**
+     * Request a command from THZ. Check if command has be sent 
+     * @param command
+     * @return 
+     */
+    String getResponseFromThz(String command) {
+
+        //TODO: check if command was executed within last 5 seconds
+        /*[
+         {"command":"F3",
+         "timestamp":123456789,
+         "response":"0012FABC"
+         },
+         {"command":"F4",
+         "timestamp":123450789,
+         "response":"0014DA2C"
+         }
+         ]
+         */
+        //if yes -> parse last response
+        //if no -> request new data
+        JSONObject comm = null;
+        Long curTime = System.currentTimeMillis();
+        Long sentTime = 0L;
+        String response = "";
+        for (int i = 0; i < thzCommandHistory.length(); i++) {
+            if (thzCommandHistory.getJSONObject(i).getString("command").equalsIgnoreCase(command)) {
+                // command found
+                comm = thzCommandHistory.getJSONObject(i);
+                sentTime = thzCommandHistory.getJSONObject(i).optLong("timestamp", 0);
+                break;
+            }
+        }
+        // command was placed in past
+        if (comm != null) {
+            Long diffTime = curTime - sentTime;
+            if (diffTime < THZ_REPEAT_TIMEOUT) {
+                response = comm.getString("response");
+            } else {
+                response = thz.requestFromThz(command);
+                comm.put("timestamp", curTime);
+                comm.put("response", response);
+            }
+        } else {
+            comm = new JSONObject();
+            response = thz.requestFromThz(command);
+            comm.put("command", command);
+            comm.put("timestamp", curTime);
+            comm.put("response", response);
+            thzCommandHistory.put(comm);
+        }
+
+        return response;
     }
 }

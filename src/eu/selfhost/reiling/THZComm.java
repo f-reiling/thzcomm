@@ -165,6 +165,8 @@ public class THZComm {
 
         if (this._serialPortOpen != true) {
             logger.error("Port closed");
+            // TODO: SIM only!
+            //return "0A091E000F000000000000000000000000000000001040";
             return null;
         }
 
