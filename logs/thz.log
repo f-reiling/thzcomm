@@ -1,0 +1,6 @@
+2015-03-11 11:37:35,683 [main] INFO THZComm.openThzComm - Open Serialport
+2015-03-11 11:37:36,132 [main] ERROR THZComm.openThzComm - Serialport not found: /dev/ttyUSB0
+2015-03-11 11:37:37,651 [main] INFO THZReader.handleUDPRequest - UDP-REQUEST [127.0.0.1]: {"request": {"dataField": "dhw_temp"}}
+2015-03-11 11:37:37,651 [main] DEBUG THZComm.requestFromThz - THZ-command: F3
+2015-03-11 11:37:37,651 [main] ERROR THZComm.requestFromThz - Port closed
+2015-03-11 11:37:37,656 [main] INFO THZReader.handleUDPRequest - UDP-RESPONSE [127.0.0.1]: {"response":{"value":"invalid","dataField":"dhw_temp"},"request":{"dataField":"dhw_temp"}}

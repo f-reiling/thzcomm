@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="log-path">./logs</Property>
+    </Properties>
+    <Appenders>
+        <!--<RollingFile name="RollingFile" fileName="${log-path}/myexample.log"
+                     filePattern="${log-path}/myexample-%d{yyyy-MM-dd}-%i.log" >
+            <PatternLayout>
+                <pattern>%d{YYYY-MM-DD HH:mm:ss,SSS} - %c{1}: %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1 KB" />
+            </Policies>
+            <DefaultRolloverStrategy max="4"/>
+        </RollingFile>-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36}.%M - %msg%n"/>
+        </Console>
+        <File name="ToFile" fileName="${log-path}/thz.log" append="false">
+            <PatternLayout>
+                <Pattern>%d [%t] %p %c{1}.%M - %m%n</Pattern>
+            </PatternLayout>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Logger name="eu.selfhost.reiling.THZComm" level="trace" additivity="false">
+            <AppenderRef ref="Console" level="error"/>
+            <AppenderRef ref="ToFile" level="trace"/>
+        </Logger>
+        <Logger name="eu.selfhost.reiling.THZReader" level="trace" additivity="false">
+            <AppenderRef ref="Console" level="error"/>
+            <AppenderRef ref="ToFile" level="trace"/>
+        </Logger>
+        <Root level="error">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

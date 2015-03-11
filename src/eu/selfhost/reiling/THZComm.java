@@ -10,8 +10,7 @@ import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.TooManyListenersException;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.*;
 
 /**
  * THZComm class is responsible for communication with THZ
@@ -57,6 +56,7 @@ public class THZComm {
     SerialPort _serialPort;
     OutputStream _outputStream;
     InputStream _inputStream;
+    static final Logger logger = LogManager.getLogger(THZComm.class.getName());
 
 // </editor-fold>
     public THZComm(String portName) {
@@ -85,10 +85,10 @@ public class THZComm {
         Enumeration enumComm;
         Boolean foundPort = false;
         if (_serialPortOpen != false) {
-            System.out.println("Serialport bereits geöffnet");
+            logger.error("Serialport already opened");
             return false;
         }
-        System.out.println("Öffne Serialport");
+        logger.info("Open Serialport");
         enumComm = CommPortIdentifier.getPortIdentifiers();
         while (enumComm.hasMoreElements()) {
             serialPortId = (CommPortIdentifier) enumComm.nextElement();
@@ -98,38 +98,36 @@ public class THZComm {
             }
         }
         if (foundPort != true) {
-            System.out.println("Serialport nicht gefunden: " + _portName);
+            logger.error("Serialport not found: " + _portName);
             return false;
         } else { // port found
             try {
-                _serialPort = (SerialPort) serialPortId.open("Öffnen und Senden", 500);
+                _serialPort = (SerialPort) serialPortId.open("Open and Send", 500);
             } catch (PortInUseException e) {
-                System.out.println("Port belegt");
+                logger.error("Port in use");
             }
 
             try {
                 _outputStream = _serialPort.getOutputStream();
-                //outputStream = System.out;
             } catch (IOException e) {
-                System.out.println("Keinen Zugriff auf OutputStream");
+                logger.error("No Acces to OutputStream");
             }
 
             try {
                 _inputStream = _serialPort.getInputStream();
-                //inputStream = System.in;
             } catch (IOException e) {
-                System.out.println("Keinen Zugriff auf InputStream");
+                logger.error("No Acces to InputStream");
             }
             try {
                 _serialPort.addEventListener(new serialPortEventListener());
             } catch (TooManyListenersException e) {
-                System.out.println("TooManyListenersException für Serialport");
+                logger.error("TooManyListenersException for Serialport");
             }
             _serialPort.notifyOnDataAvailable(true);
             try {
                 _serialPort.setSerialPortParams(_baudRate, _dataBits, _stopBits, _parity);
             } catch (UnsupportedCommOperationException e) {
-                System.out.println("Konnte Schnittstellen-Paramter nicht setzen");
+                logger.error("Not poosible to set communication parameters");
             }
 
             _serialPortOpen = true;
@@ -145,11 +143,11 @@ public class THZComm {
     public void closeThzComm() {
         // close thz comm port
         if (_serialPortOpen == true) {
-            System.out.println("Schließe Serialport");
+            logger.debug("Close Serialport");
             _serialPort.close();
             _serialPortOpen = false;
         } else {
-            System.out.println("Serialport bereits geschlossen");
+            logger.error("Serialport already closed");
         }
     }
 //</editor-fold>
@@ -163,10 +161,10 @@ public class THZComm {
      */
     public String requestFromThz(String command) {
 
-        System.out.println("Request: " + command);
+        logger.debug("THZ-command: " + command);
 
         if (this._serialPortOpen != true) {
-            System.out.println("Port closed");
+            logger.error("Port closed");
             return null;
         }
 
@@ -189,9 +187,11 @@ public class THZComm {
         // 5. send COM_ACK
         writeToThz(COM_ACK);
 
-        // 6. read data, wait for COM_ACK+COM_ETX ("10 03")
-        String readData = readFromThz(COM_ACK + COM_ETX, COM_TIMEOUT);
+        // 6. read data, wait for COM_ACK+COM_ETX ("10 03"), minimum String length = 6 (header+chksum+footer)
+        String readData = readFromThz(COM_ACK + COM_ETX, COM_TIMEOUT, 6);
         if (readData == null) {
+            writeToThz(COM_NAK);
+            logger.error("invalid Response received.");
             return null;
         }
 
@@ -199,17 +199,10 @@ public class THZComm {
         writeToThz(COM_ACK);
 
         // 8. parse data and return
-        try {
-            readData = decodeThzResponse(readData);
-            // 9. send COM_ACK //OBSOLETE!!!
-            //writeToThz(COM_ACK);
+        readData = decodeThzResponse(readData);
 
-            System.out.println("Response: " + readData);
-            return readData;
-        } catch (Exception ex) {
-            Logger.getLogger(THZComm.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
+        logger.debug("THZ-Response: " + readData);
+        return readData;
     }
 //</editor-fold>
 
@@ -220,7 +213,7 @@ public class THZComm {
      * @param msg
      */
     private void writeToThz(String msg) {
-        System.out.println("LL-SEND: 0x" + msg);
+        logger.debug("LL-SEND: 0x" + msg);
         if (_serialPortOpen != true) {
             return;
         }
@@ -228,7 +221,7 @@ public class THZComm {
             //_outputStream.write(msg.getBytes());
             _outputStream.write(hexStringToByteArray(msg));
         } catch (IOException e) {
-            System.out.println("Fehler beim Senden");
+            logger.error("send error");
         }
     }
 //</editor-fold>
@@ -239,33 +232,36 @@ public class THZComm {
      *
      * @param end - data which marks end of message
      * @param timeout
+     * @param minimumLength - minimum length of read Data
      * @return
      */
     private String readFromThz(String end, int timeout) {
+        return readFromThz(end, timeout, 0);
+    }
+
+    private String readFromThz(String end, int timeout, int minimumLength) {
         // TODO: wait for response from Thz until "end" is received or timout reached
         StringBuilder recvData = new StringBuilder("");
-        int startIndex = 0;
+        int startIndex = Math.max(minimumLength - end.length(), 0);
         int rec;
-        //TODO: Workaround: If 1003 is inside message -> checksum will fail!
-        if (end.equalsIgnoreCase("1003")) startIndex = 3;
         try {
             while (timeout > 0) {
                 while (_inputStream.available() > 0) {
                     rec = _inputStream.read();
                     recvData.append(String.format("%02X", rec));
                 }
-                if (recvData.indexOf(end,startIndex) > -1) {
-                    System.out.println("LL-RECV: 0x" + recvData.toString());
+                if (recvData.indexOf(end, startIndex) > -1) {
+                    logger.debug("LL-RECV: 0x" + recvData.toString());
                     return recvData.toString();
                 }
 
                 timeout--;
-                Thread.sleep(1);
+                Thread.sleep(5);
             }
         } catch (InterruptedException | IOException ex) {
-            Logger.getLogger(THZComm.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(THZComm.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("TIMEOUT!");
+        logger.error("TIMEOUT!");
         return null;
     }
 //</editor-fold>
@@ -309,7 +305,7 @@ public class THZComm {
      *
      * @param data
      */
-    static String decodeThzResponse(String data) throws Exception {
+    static String decodeThzResponse(String data) {
         data = data.replaceAll("1010", "10");
         data = data.replaceAll("2B18", "2B");
 
@@ -317,14 +313,15 @@ public class THZComm {
         int checksumInMsg = Integer.parseInt(data.substring(4, 6), 16);
 
         if (checksum != checksumInMsg) {
-            throw new Exception("Checksum mismatch!");
+            //throw new Exception("Checksum mismatch!");
+            logger.error("Checksum mismatch!");
+            return null;
         }
 
         return data.substring(6, data.length() - 4);
     }
 
 // </editor-fold>
-    
 // <editor-fold defaultstate="collapsed" desc="Calculate THZ Checksum">
     /**
      * calc checksum: add all bytes, except dummy byte ([2]) and footer for
@@ -341,12 +338,11 @@ public class THZComm {
                 checksum += ((int) data[i]) & 0xFF;
             }
         }
-        System.out.println(String.format("CHK: 0x%04X", checksum));
+        logger.debug(String.format("checksum: 0x%04X", checksum));
         return (checksum & 0xFF);
     }
 
 // </editor-fold>
-    
 //<editor-fold defaultstate="collapsed" desc="Support functions">
     static byte[] hexStringToByteArray(String s) {
         int len = s.length();
@@ -371,6 +367,7 @@ public class THZComm {
     }
 //</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Event Listener for serial port">
     class serialPortEventListener implements SerialPortEventListener {
 
         @Override
@@ -392,4 +389,5 @@ public class THZComm {
             }
         }
     }
+//</editor-fold>
 }

@@ -14,18 +14,20 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.json.*;
 
 /**
  *
  * @author Florian Reiling
  */
-public class THZReader{
+public class THZReader {
 
     THZReader reader;
     THZComm thz;
     JSONObject thzConfig;
     DatagramSocket serverSocket;
+    static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(THZReader.class.getName());
 
     /**
      * @param args the command line arguments
@@ -39,7 +41,7 @@ public class THZReader{
     }
 
     public THZReader() {
-        
+
     }
 
     public void run() throws InterruptedException {
@@ -73,9 +75,8 @@ public class THZReader{
                 //byte[] sendData = new byte[256];
                 DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                 serverSocket.receive(receivePacket);
-                
-                //Thread.sleep(Math.round(Math.random()*1000.0));
 
+                //Thread.sleep(Math.round(Math.random()*1000.0));
                 handleUDPRequest(receivePacket);
             }
         } catch (SocketException ex) {
@@ -94,7 +95,6 @@ public class THZReader{
     private JSONObject readFromTHZ(String value) {
 
         JSONObject obj = findCommand(value);
-        
 
         if (obj != null) {
             boolean multiCommand = false;
@@ -106,7 +106,6 @@ public class THZReader{
 
             //TODO: TEST ONLY! 
             //result1 = "0A091E000F000000000000000000000000000000001040";
-
             // TODO: parse result as defined in JSON-File
             if (result1 == null) {
                 return null;
@@ -118,7 +117,7 @@ public class THZReader{
                 //TODO: TEST ONLY!
                 //result2 = "0A091F00FF";
                 if (result2 == null) {
-                    System.out.println("No result for second command!");
+                    logger.error("No result for second command!");
                 } else {
                     multiCommand = true;
                     resultObj2 = parseThzResult(obj.getJSONObject("command2"), result2);
@@ -139,12 +138,12 @@ public class THZReader{
 
             obj.put("result", resultObj);
 
-            System.out.println(obj.getString("description") + ": " + resultObj.toString() + obj.getString("unit"));
+            logger.debug(obj.getString("description") + ": " + resultObj.toString() + obj.getString("unit"));
             return obj;
             //return resultObj;
 
         } else {
-            System.out.println("value not found");
+            logger.error("value not found");
         }
         return null;
     }
@@ -255,7 +254,7 @@ public class THZReader{
 
             String sentence = new String(receivePacket.getData()).trim();
 
-            System.out.println("UDP-REQUEST [" + IPAddress.getHostAddress() + "]: " + sentence);
+            logger.info("UDP-REQUEST [" + IPAddress.getHostAddress() + "]: " + sentence);
 
             if (sentence.contentEquals("exit")) {
                 return;
@@ -269,20 +268,20 @@ public class THZReader{
 
             JSONObject resultObj = new JSONObject();
             resultObj.put("dataField", reqObj.getString("dataField"));
+            resultObj.put("unit", result.getString("unit"));
+            resultObj.put("timestamp", System.currentTimeMillis());
+            
             if (result == null) {
                 resultObj.put("value", "invalid");
             } else {
                 resultObj.put("value", result.get("result"));
-                resultObj.put("unit", result.getString("unit"));
-                resultObj.put("timestamp", System.currentTimeMillis());
             }
 
             JSONObject resObj = new JSONObject();
             resObj.put("request", reqObj);
             resObj.put("response", resultObj);
-            
-            
-            System.out.println("UDP-RESPONSE [" + IPAddress.getHostAddress() + "]: " + resObj.toString());
+
+            logger.info("UDP-RESPONSE [" + IPAddress.getHostAddress() + "]: " + resObj.toString());
 
             byte[] sendData = resObj.toString().getBytes();
 
