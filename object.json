@@ -86,6 +86,16 @@
             "unit": "°C"
         },
         {
+            "value": "hc1_set_temp",
+            "description": "current heater circuit1 set temperature",
+            "command": "F4",
+            "start": 22,
+            "length": 4,
+            "type": "hex2dbl",
+            "divisor": 10,
+            "unit": "°C"
+        },
+        {
             "value": "heatEnergyDHWDaily",
             "description": "daily amount of heat. Energy used for DHW",
             "command": "0A092A",
@@ -228,6 +238,16 @@
             "start": 42,
             "length": 1,
             "type": "bit0",
+            "divisor": 1,
+            "unit": ""
+        },
+        {
+            "value": "status_hc_pump",
+            "description": "current heating circuit pump status",
+            "command": "FB",
+            "start": 42,
+            "length": 1,
+            "type": "bit1",
             "divisor": 1,
             "unit": ""
         },
