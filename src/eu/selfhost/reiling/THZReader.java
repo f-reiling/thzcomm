@@ -27,7 +27,7 @@ public class THZReader {
     DatagramSocket serverSocket;
     static final Logger logger = LogManager.getLogger(THZReader.class.getName());
     JSONArray thzCommandHistory = new JSONArray();
-    
+
     private static final Long THZ_REPEAT_TIMEOUT = 5000L; // if command has been sent within this time, do not request again
 
     /**
@@ -106,9 +106,6 @@ public class THZReader {
 
             result1 = getResponseFromThz(obj.getString("command"));
 
-            //TODO: TEST ONLY! 
-            //result1 = "0A091E000F000000000000000000000000000000001040";
-            // TODO: parse result as defined in JSON-File
             if (result1 == null) {
                 return null;
             }
@@ -116,8 +113,6 @@ public class THZReader {
             if (obj.has("command2")) {
                 result2 = getResponseFromThz(obj.getJSONObject("command2").getString("command"));
 
-                //TODO: TEST ONLY!
-                //result2 = "0A091F00FF";
                 if (result2 == null) {
                     logger.error("No result for second command!");
                 } else {
@@ -145,7 +140,7 @@ public class THZReader {
             //return resultObj;
 
         } else {
-            logger.error("value not found");
+            logger.error("value: [" + value + "] not found");
         }
         return null;
     }
@@ -254,38 +249,37 @@ public class THZReader {
             InetAddress IPAddress = receivePacket.getAddress();
             int port = receivePacket.getPort();
 
-            String sentence = new String(receivePacket.getData()).trim();
+            String requestString = new String(receivePacket.getData()).trim();
 
-            logger.info("UDP-REQUEST [" + IPAddress.getHostAddress() + "]: " + sentence);
+            logger.info("UDP-REQUEST [" + IPAddress.getHostAddress() + "]: " + requestString);
+            
+            //TODO: validate JSON-Object
+            JSONObject requestObj = new JSONObject(requestString);
 
-            if (sentence.contentEquals("exit")) {
-                return;
-            }
-            JSONObject reqObj = new JSONObject(sentence);
-
-            reqObj = (JSONObject) reqObj.get("request");
+            requestObj = (JSONObject) requestObj.get("request");
 
             // TODO: parse data and request from THZ
-            JSONObject result = readFromTHZ(reqObj.getString("dataField"));
+            JSONObject result = readFromTHZ(requestObj.getString("dataField"));
 
             JSONObject resultObj = new JSONObject();
-            resultObj.put("dataField", reqObj.getString("dataField"));
-            resultObj.put("unit", result.getString("unit"));
             resultObj.put("timestamp", System.currentTimeMillis());
-
+            resultObj.put("dataField", requestObj.getString("dataField"));
+            
             if (result == null) {
-                resultObj.put("value", "invalid");
+                resultObj.put("value", JSONObject.NULL);
+                resultObj.put("unit", "invalid");
             } else {
                 resultObj.put("value", result.get("result"));
+                resultObj.put("unit", result.getString("unit"));
             }
 
-            JSONObject resObj = new JSONObject();
-            resObj.put("request", reqObj);
-            resObj.put("response", resultObj);
+            JSONObject responseObj = new JSONObject();
+            responseObj.put("request", requestObj);
+            responseObj.put("response", resultObj);
 
-            logger.info("UDP-RESPONSE [" + IPAddress.getHostAddress() + "]: " + resObj.toString());
+            logger.info("UDP-RESPONSE [" + IPAddress.getHostAddress() + "]: " + responseObj.toString());
 
-            byte[] sendData = resObj.toString().getBytes();
+            byte[] sendData = responseObj.toString().getBytes();
 
             //String capitalizedSentence = sentence.toUpperCase();
             //sendData = capitalizedSentence.getBytes();
@@ -298,9 +292,10 @@ public class THZReader {
     }
 
     /**
-     * Request a command from THZ. Check if command has be sent 
+     * Request a command from THZ. Check if command has be sent
+     *
      * @param command
-     * @return 
+     * @return
      */
     String getResponseFromThz(String command) {
 
