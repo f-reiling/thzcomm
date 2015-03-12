@@ -290,8 +290,9 @@ public class THZComm {
 
         dataMsg = new StringBuilder("0100");
         dataMsg.append(checkSumStr);
-        msg = msg.replace("10", "1010");
-        msg = msg.replace("2B", "2B18");
+        
+        msg = replaceDataString(msg, "10", "1010");
+        msg = replaceDataString(msg, "2B", "2B18");
         dataMsg.append(msg);
         dataMsg.append("1003");
 
@@ -308,8 +309,8 @@ public class THZComm {
      * @param data
      */
     static String decodeThzResponse(String data) {
-        data = data.replaceAll("1010", "10");
-        data = data.replaceAll("2B18", "2B");
+        data = replaceDataString(data, "1010", "10");
+        data = replaceDataString(data, "2B18", "2B");
 
         int checksum = calcThzChecksum(data);
         int checksumInMsg = Integer.parseInt(data.substring(4, 6), 16);
@@ -317,7 +318,7 @@ public class THZComm {
         if (checksum != checksumInMsg) {
             //throw new Exception("Checksum mismatch!");
             logger.error("Checksum mismatch!");
-            return null;
+            //return null;
         }
 
         return data.substring(6, data.length() - 4);
@@ -368,6 +369,35 @@ public class THZComm {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+    
+    /**
+     * replaces hex-data in data string
+     * @param msg - original message
+     * @param search - search data which shall be replaced
+     * @param replace - replace data
+     * @return String with replaced data
+     */
+    static String replaceDataString(String msg, String search, String replace){
+        StringBuilder newMsg = new StringBuilder(msg);
+        StringBuilder searchString = new StringBuilder(search);
+        StringBuilder replaceString = new StringBuilder(replace);
+        for (int i = 2; i < newMsg.length(); i=i+3) {
+            newMsg.insert(i, ".");
+        }
+        for (int i = 2; i < searchString.length(); i=i+3) {
+            searchString.insert(i, ".");
+        }
+        for (int i = 2; i < replaceString.length(); i=i+3) {
+            replaceString.insert(i, ".");
+        }
+        
+        String returnStr = newMsg.toString().replace(searchString.toString(), replaceString.toString());
+        //returnStr = returnStr.replace(searchString, replaceString);
+        
+        returnStr = returnStr.toString().replace(".", "");
+        
+        return returnStr;
     }
 //</editor-fold>
 
