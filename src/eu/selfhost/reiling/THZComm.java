@@ -44,8 +44,8 @@ public class THZComm {
     private static final String COM_ACK = "10";
     private static final String COM_NAK = "15";
     private static final int COM_TIMEOUT = 100;
-
 // </editor-fold>
+    
 // <editor-fold defaultstate="collapsed" desc=" object members ">
     private String _portName = null;
     private Integer _baudRate = null;
@@ -57,8 +57,8 @@ public class THZComm {
     OutputStream _outputStream;
     InputStream _inputStream;
     static final Logger logger = LogManager.getLogger(THZComm.class.getName());
-
 // </editor-fold>
+    
     public THZComm(String portName) {
         this._portName = portName;
         setBaudrate(Baudrate.B115200);
@@ -166,8 +166,8 @@ public class THZComm {
         if (this._serialPortOpen != true) {
             logger.error("Port closed");
             // TODO: SIM only!
-            //return "0A091E000F000000000000000000000000000000001040";
-            return null;
+            return "0A091E000F000000000000000000000000000000001040";
+            //return null;
         }
 
         // 1. write COM_STX
