@@ -32,8 +32,8 @@ public class THZCommTest {
     @Test
     public void testCalcThzChecksum() {
         System.out.println("calcThzChecksum");
-        String msg = "0100450A091E1003";
-        int expResult = 0x32;
+        String msg = "0100340A0101091E1003";
+        int expResult = 0x34;
         int result = THZComm.calcThzChecksum(msg);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
@@ -43,8 +43,8 @@ public class THZCommTest {
     @Test
     public void testDecodeThzResponse() throws Exception {
         System.out.println("decodeThzResponse");
-        String data = "01003C10102B181003";
-        String expResult = "102B";
+        String data = "0100340A0101091E1003";
+        String expResult = "0A0101091E";
         String result = THZComm.decodeThzResponse(data);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
@@ -68,6 +68,32 @@ public class THZCommTest {
         byte[] bytes = new byte[]{(byte)0x01, (byte)0x23, (byte)0x45, (byte)0x67, (byte)0x89, (byte)0xAB, (byte)0xCD, (byte)0xEF};
         String expResult = "0123456789ABCDEF";
         String result = THZComm.bytesToHex(bytes);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        //fail("The test case is a prototype.");
+    }
+
+    @Test
+    public void testReplaceBytes() {
+        System.out.println("replaceBytes");
+        String data = "010101";
+        String expResult = "010101";
+        String result = THZComm.replaceDataString(data,"10","1010");
+        assertEquals(expResult, result);
+        
+        data = "101010";
+        expResult = "101010101010";
+        result = THZComm.replaceDataString(data,"10","1010");
+        assertEquals(expResult, result);
+        
+        data = "01002B1800";
+        expResult = "01002B00";
+        result = THZComm.replaceDataString(data,"2B18","2B");
+        assertEquals(expResult, result);
+        
+        data = "01002B00";
+        expResult = "01002B1800";
+        result = THZComm.replaceDataString(data,"2B","2B18");
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         //fail("The test case is a prototype.");
