@@ -262,6 +262,56 @@
             "unit": ""
         },
         {
+            "value": "booster_stage2",
+            "description": "status Booster stage1",
+            "command": "FB",
+            "start": 44,
+            "length": 1,
+            "type": "bit1",
+            "divisor": 1,
+            "unit": ""
+        },
+        {
+            "value": "booster_stage3",
+            "description": "status Booster stage1",
+            "command": "FB",
+            "start": 44,
+            "length": 1,
+            "type": "bit0",
+            "divisor": 1,
+            "unit": ""
+        },
+        {
+            "value": "status_compressor",
+            "description": "current compressor status",
+            "command": "FB",
+            "start": 45,
+            "length": 1,
+            "type": "bit3",
+            "divisor": 1,
+            "unit": ""
+        },
+        {
+            "value": "actualPower_Qc",
+            "description": "current heating power",
+            "command": "FB",
+            "start": 92,
+            "length": 8,
+            "type": "hex2float",
+            "divisor": 1,
+            "unit": "kW"
+        },
+        {
+            "value": "actualPower_Pel",
+            "description": "current electric power",
+            "command": "FB",
+            "start": 100,
+            "length": 8,
+            "type": "hex2float",
+            "divisor": 1,
+            "unit": "kW"
+        },
+        {
             "value": "system_time",
             "description": "current system time",
             "command": "FC",

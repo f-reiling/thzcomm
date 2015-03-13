@@ -196,17 +196,24 @@ public class THZReader {
 
                 case "opmode":
                     int OpModeValue = Integer.parseInt(dataString, 16);
-                // TODO: implement opmode parser
+                    // TODO: implement opmode parser
                     return OpModeValue;
-                    
+
                 case "systemTime":
-                    int hour = Integer.parseInt(dataString.substring(2, 4),16);
-                    int minute = Integer.parseInt(dataString.substring(4, 6),16);
-                    int second = Integer.parseInt(dataString.substring(6, 8),16);
-                    int year = Integer.parseInt(dataString.substring(8, 10),16);
-                    int month = Integer.parseInt(dataString.substring(10, 12),16);
-                    int day = Integer.parseInt(dataString.substring(12, 14),16);
+                    int hour = Integer.parseInt(dataString.substring(2, 4), 16);
+                    int minute = Integer.parseInt(dataString.substring(4, 6), 16);
+                    int second = Integer.parseInt(dataString.substring(6, 8), 16);
+                    int year = Integer.parseInt(dataString.substring(8, 10), 16);
+                    int month = Integer.parseInt(dataString.substring(10, 12), 16);
+                    int day = Integer.parseInt(dataString.substring(12, 14), 16);
                     return String.format("20%02d-%02d-%02d %02d:%02d:%02d", year, month, day, hour, minute, second);
+
+                case "hex2float":
+                    // TODO: add parser for esp_mant type!
+                    Long i = Long.parseLong(dataString, 16);
+                    Float f = Float.intBitsToFloat(i.intValue());
+                    Double d = (Math.round(f*1000.0))/1000.0;
+                    return d;
             }
         } catch (Exception e) {
             //e.printStackTrace();
