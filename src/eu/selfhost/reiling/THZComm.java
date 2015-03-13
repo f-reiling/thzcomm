@@ -166,7 +166,8 @@ public class THZComm {
         if (this._serialPortOpen != true) {
             logger.error("Port closed");
             // TODO: SIM only!
-            return "0A091E000F000000000000000000000000000000001040";
+            return getTHZSimulatorValue(command);
+            //return "0A091E000F000000000000000000000000000000001040";
             //return null;
         }
 
@@ -398,6 +399,51 @@ public class THZComm {
         returnStr = returnStr.toString().replace(".", "");
         
         return returnStr;
+    }
+//</editor-fold>
+    
+//<editor-fold defaultstate="collapsed" desc="response simulator">
+    private String getTHZSimulatorValue(String command) {
+        String response = null;
+        switch (command) {
+            case "F3":
+                response = "F30194FFF9017C00002008000000020002DC5A";
+                break;
+            case "F4":
+                response = "F4FFF901E9012C000F0149012D013401000201200800640200000000D20000160000D20200001600";
+                break;
+            case "FB":
+                response = "FBFDA8FFF90149012C032C0194FDA8FDA8FFBF0131200811010E010E02BC000C0014001400060000000001320599409F2D253FD1374C";
+                break;
+            case "0A091A":
+                response = "0A091A037D";
+                break;
+            case "0A091B":
+                response = "0A091B0004";
+                break;
+            case "0A092A":
+                response = "0A092A0290";
+                break;
+            case "0A092B":
+                response = "0A092B0009";
+                break;
+            case "0A092E":
+                response = "0A092E02BB";
+                break;
+            case "0A092F":
+                response = "0A092F0028";
+                break;
+            case "0A091E":
+                response = "0A091E03D3";
+                break;
+            case "0A091F":
+                response = "0A091F000D";
+                break;
+            case "FC":
+                response = "FC050B28120E030B";
+                break;
+        }
+        return response;
     }
 //</editor-fold>
 
