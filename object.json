@@ -260,6 +260,16 @@
             "type": "bit2",
             "divisor": 1,
             "unit": ""
+        },
+        {
+            "value": "system_time",
+            "description": "current system time",
+            "command": "FC",
+            "start": 2,
+            "length": 14,
+            "type": "systemTime",
+            "divisor": 1,
+            "unit": ""
         }
     ]
 }
