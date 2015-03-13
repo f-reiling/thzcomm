@@ -189,7 +189,7 @@ public class THZReader {
                 case "bit3":
                     int bitPos = Integer.parseInt(parseType.substring(3));
                     byte resultByte = Byte.parseByte(dataString, 16);
-                    if ((resultByte & (0x01 << bitPos)) == 1) {
+                    if ((resultByte & (0x01 << bitPos)) != 0) {
                         return 1;
                     }
                     return 0;
@@ -252,7 +252,7 @@ public class THZReader {
             String requestString = new String(receivePacket.getData()).trim();
 
             logger.info("UDP-REQUEST [" + IPAddress.getHostAddress() + "]: " + requestString);
-            
+
             //TODO: validate JSON-Object
             JSONObject requestObj = new JSONObject(requestString);
 
@@ -264,7 +264,7 @@ public class THZReader {
             JSONObject resultObj = new JSONObject();
             resultObj.put("timestamp", System.currentTimeMillis());
             resultObj.put("dataField", requestObj.getString("dataField"));
-            
+
             if (result == null) {
                 resultObj.put("value", JSONObject.NULL);
                 resultObj.put("unit", "invalid");
@@ -332,16 +332,20 @@ public class THZReader {
                 response = comm.getString("response");
             } else {
                 response = thz.requestFromThz(command);
-                comm.put("timestamp", curTime);
-                comm.put("response", response);
+                if (response != null) {
+                    comm.put("timestamp", curTime);
+                    comm.put("response", response);
+                }
             }
         } else {
             comm = new JSONObject();
             response = thz.requestFromThz(command);
-            comm.put("command", command);
-            comm.put("timestamp", curTime);
-            comm.put("response", response);
-            thzCommandHistory.put(comm);
+            if (response != null) {
+                comm.put("command", command);
+                comm.put("timestamp", curTime);
+                comm.put("response", response);
+                thzCommandHistory.put(comm);
+            }
         }
 
         return response;
