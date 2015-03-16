@@ -66,6 +66,16 @@
             "unit": "°C"
         },
         {
+            "value": "outside_temp_filtered",
+            "description": "current outside temperature (filtered)",
+            "command": "FB",
+            "start": 72,
+            "length": 4,
+            "type": "hex2dbl",
+            "divisor": 10,
+            "unit": "°C"
+        },
+        {
             "value": "hc1_return_temp",
             "description": "current heater circuit1 return temperature",
             "command": "F4",
