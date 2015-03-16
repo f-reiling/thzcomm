@@ -56,6 +56,8 @@ public class THZReader {
         thz.openThzComm();
 
         listAllValues();
+        
+        //TODO: implement watch listener for changes of configuration file: http://docs.oracle.com/javase/tutorial/essential/io/notification.html
 
         /*reader.readFromTHZ("elecEnergyHCDaily");
          reader.readFromTHZ("heatEnergyHCDaily");
@@ -247,6 +249,8 @@ public class THZReader {
     }
 
     private void listAllValues() {
+        System.out.println("--------------------------------------------------");
+        System.out.println("Available THZ values:");
         try {
             JSONArray arr = thzConfig.getJSONArray("statusValues");
             for (int i = 0; i < arr.length(); i++) {
@@ -260,6 +264,7 @@ public class THZReader {
         } catch (JSONException ex) {
             //Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
         }
+        System.out.println("--------------------------------------------------");
     }
 
     private void handleUDPRequest(DatagramPacket receivePacket) {
