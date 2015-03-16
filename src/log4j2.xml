@@ -24,11 +24,11 @@
         </File>
     </Appenders>
     <Loggers>
-        <Logger name="eu.selfhost.reiling.THZComm" level="trace" additivity="false">
+        <Logger name="eu.selfhost.reiling.THZComm" level="info" additivity="false">
             <AppenderRef ref="Console" level="error"/>
             <AppenderRef ref="ToFile" level="trace"/>
         </Logger>
-        <Logger name="eu.selfhost.reiling.THZReader" level="trace" additivity="false">
+        <Logger name="eu.selfhost.reiling.THZReader" level="info" additivity="false">
             <AppenderRef ref="Console" level="error"/>
             <AppenderRef ref="ToFile" level="trace"/>
         </Logger>
