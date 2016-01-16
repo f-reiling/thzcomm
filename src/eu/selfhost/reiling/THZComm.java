@@ -421,17 +421,41 @@ public class THZComm {
             case "0A091B":
                 response = "0A091B0004";
                 break;
+            case "0A0920":
+                response = "0A092002BB";
+                break;
+            case "0A0921":
+                response = "0A09210008";
+                break;
             case "0A092A":
                 response = "0A092A0290";
                 break;
             case "0A092B":
                 response = "0A092B0009";
                 break;
+            case "0A092C":
+                response = "0A092D0290";
+                break;
+            case "0A092D":
+                response = "0A092D0003";
+                break;
             case "0A092E":
                 response = "0A092E02BB";
                 break;
             case "0A092F":
                 response = "0A092F0028";
+                break;
+            case "0A0930":
+                response = "0A093002BB";
+                break;
+            case "0A0931":
+                response = "0A09310008";
+                break;
+            case "0A091C":
+                response = "0A091C03A3";
+                break;
+            case "0A091D":
+                response = "0A091D000D";
                 break;
             case "0A091E":
                 response = "0A091E03D3";

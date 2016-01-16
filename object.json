@@ -46,7 +46,7 @@
     "opmode": {"1": "standby", "11": "automatic", "3": "DAYmode", "4": "setback", "5": "DHWmode", "14": "manual", "0": "emergency"},
     "statusValues": [
         {
-            "value": "dhw_temp",
+            "dataField": "dhw_temp",
             "description": "current hot water temperature",
             "command": "F3",
             "start": 2,
@@ -56,7 +56,7 @@
             "unit": "°C"
         },
         {
-            "value": "outside_temp",
+            "dataField": "outside_temp",
             "description": "current outside temperature",
             "command": "F3",
             "start": 6,
@@ -66,7 +66,7 @@
             "unit": "°C"
         },
         {
-            "value": "outside_temp_filtered",
+            "dataField": "outside_temp_filtered",
             "description": "current outside temperature (filtered)",
             "command": "FB",
             "start": 72,
@@ -76,7 +76,7 @@
             "unit": "°C"
         },
         {
-            "value": "hc1_return_temp",
+            "dataField": "hc1_return_temp",
             "description": "current heater circuit1 return temperature",
             "command": "F4",
             "start": 10,
@@ -86,7 +86,7 @@
             "unit": "°C"
         },
         {
-            "value": "hc1_flow_temp",
+            "dataField": "hc1_flow_temp",
             "description": "current heater circuit1 flow temperature",
             "command": "F4",
             "start": 18,
@@ -96,7 +96,7 @@
             "unit": "°C"
         },
         {
-            "value": "hc1_set_temp",
+            "dataField": "hc1_set_temp",
             "description": "current heater circuit1 set temperature",
             "command": "F4",
             "start": 22,
@@ -106,7 +106,17 @@
             "unit": "°C"
         },
         {
-            "value": "heatEnergyDHWDaily",
+            "dataField": "hc1_temp",
+            "description": "current heater circuit1 temperature",
+            "command": "F4",
+            "start": 26,
+            "length": 4,
+            "type": "hex2dbl",
+            "divisor": 10,
+            "unit": "°C"
+        },
+        {
+            "dataField": "heatEnergyDHWDaily",
             "description": "daily amount of heat. Energy used for DHW",
             "command": "0A092A",
             "start": 6,
@@ -123,7 +133,7 @@
             }
         },
         {
-            "value": "heatEnergyDHWSum",
+            "dataField": "heatEnergyDHWSum",
             "description": "Amount of heat Energy used for DHW",
             "command": "0A092C",
             "start": 6,
@@ -140,7 +150,7 @@
             }
         },
         {
-            "value": "heatEnergyHCDaily",
+            "dataField": "heatEnergyHCDaily",
             "description": "daily amount of heat. Energy used for HC",
             "command": "0A092E",
             "start": 6,
@@ -157,7 +167,7 @@
             }
         },
         {
-            "value": "heatEnergyHCSum",
+            "dataField": "heatEnergyHCSum",
             "description": "Amount of heat Energy used for HC",
             "command": "0A0930",
             "start": 6,
@@ -174,7 +184,41 @@
             }
         },
         {
-            "value": "elecEnergyDHWDaily",
+            "dataField": "heatRecoveredDaily",
+            "description": "daily amount of heat. Energy recovered",
+            "command": "0A03AE",
+            "start": 6,
+            "length": 4,
+            "type": "hex2int",
+            "factor": 1,
+            "unit": "Wh",
+            "command2": {
+                "command": "0A03AF",
+                "start": 6,
+                "length": 4,
+                "type": "hex2int",
+                "factor": 1000
+            }
+        },
+        {
+            "dataField": "heatRecoveredSum",
+            "description": "Amount of heat Energy recovered ",
+            "command": "0A03B0",
+            "start": 6,
+            "length": 4,
+            "type": "hex2int",
+            "factor": 1,
+            "unit": "kWh",
+            "command2": {
+                "command": "0A03B1",
+                "start": 6,
+                "length": 4,
+                "type": "hex2int",
+                "factor": 1000
+            }
+        },
+        {
+            "dataField": "elecEnergyDHWDaily",
             "description": "daily amount of electr. Energy used for DHW",
             "command": "0A091A",
             "start": 6,
@@ -191,7 +235,7 @@
             }
         },
         {
-            "value": "elecEnergyDHWSum",
+            "dataField": "elecEnergyDHWSum",
             "description": "Amount of electr. Energy used for DHW",
             "command": "0A091C",
             "start": 6,
@@ -208,7 +252,7 @@
             }
         },
         {
-            "value": "elecEnergyHCDaily",
+            "dataField": "elecEnergyHCDaily",
             "description": "daily amount of electr. Energy used for HC",
             "command": "0A091E",
             "start": 6,
@@ -225,7 +269,7 @@
             }
         },
         {
-            "value": "elecEnergyHCSum",
+            "dataField": "elecEnergyHCSum",
             "description": "Amount of electr. Energy used for HC",
             "command": "0A0920",
             "start": 6,
@@ -242,7 +286,41 @@
             }
         },
         {
-            "value": "status_dhw_pump",
+            "dataField": "elecEnergyHCBooster",
+            "description": "amount of electr. Energy used for HC (Booster)",
+            "command": "0A0928",
+            "start": 6,
+            "length": 4,
+            "type": "hex2int",
+            "factor": 1,
+            "unit": "kWh",
+            "command2": {
+                "command": "0A0929",
+                "start": 6,
+                "length": 4,
+                "type": "hex2int",
+                "factor": 1000
+            }
+        },
+        {
+            "dataField": "elecEnergyDHWBooster",
+            "description": "Amount of electr. Energy used for DHW (Booster)",
+            "command": "0A0924",
+            "start": 6,
+            "length": 4,
+            "type": "hex2int",
+            "factor": 1,
+            "unit": "kWh",
+            "command2": {
+                "command": "0A0925",
+                "start": 6,
+                "length": 4,
+                "type": "hex2int",
+                "factor": 1000
+            }
+        },
+        {
+            "dataField": "status_dhw_pump",
             "description": "current dhw pump status",
             "command": "FB",
             "start": 42,
@@ -252,7 +330,7 @@
             "unit": ""
         },
         {
-            "value": "status_hc_pump",
+            "dataField": "status_hc_pump",
             "description": "current heating circuit pump status",
             "command": "FB",
             "start": 42,
@@ -262,7 +340,7 @@
             "unit": ""
         },
         {
-            "value": "booster_stage1",
+            "dataField": "booster_stage1",
             "description": "status Booster stage1",
             "command": "FB",
             "start": 44,
@@ -272,7 +350,7 @@
             "unit": ""
         },
         {
-            "value": "booster_stage2",
+            "dataField": "booster_stage2",
             "description": "status Booster stage1",
             "command": "FB",
             "start": 44,
@@ -282,7 +360,7 @@
             "unit": ""
         },
         {
-            "value": "booster_stage3",
+            "dataField": "booster_stage3",
             "description": "status Booster stage1",
             "command": "FB",
             "start": 44,
@@ -292,7 +370,7 @@
             "unit": ""
         },
         {
-            "value": "status_compressor",
+            "dataField": "status_compressor",
             "description": "current compressor status",
             "command": "FB",
             "start": 45,
@@ -302,27 +380,29 @@
             "unit": ""
         },
         {
-            "value": "actualPower_Qc",
+            "dataField": "actualPower_Qc",
             "description": "current heating power",
             "command": "FB",
             "start": 92,
             "length": 8,
             "type": "hex2float",
             "divisor": 1,
-            "unit": "kW"
+            "factor": 1000,
+            "unit": "W"
         },
         {
-            "value": "actualPower_Pel",
+            "dataField": "actualPower_Pel",
             "description": "current electric power",
             "command": "FB",
             "start": 100,
             "length": 8,
             "type": "hex2float",
             "divisor": 1,
-            "unit": "kW"
+            "factor": 1000,
+            "unit": "W"
         },
         {
-            "value": "system_time",
+            "dataField": "system_time",
             "description": "current system time",
             "command": "FC",
             "start": 2,

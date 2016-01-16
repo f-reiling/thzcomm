@@ -56,7 +56,7 @@ public class THZReader {
         thz.openThzComm();
 
         listAllValues();
-        
+
         //TODO: implement watch listener for changes of configuration file: http://docs.oracle.com/javase/tutorial/essential/io/notification.html
 
         /*reader.readFromTHZ("elecEnergyHCDaily");
@@ -214,7 +214,9 @@ public class THZReader {
                     // TODO: add parser for esp_mant type!
                     Long i = Long.parseLong(dataString, 16);
                     Float f = Float.intBitsToFloat(i.intValue());
-                    Double d = (Math.round(f*1000.0))/1000.0;
+                    Double d = (Math.round(f * 1000.0)) / 1000.0;
+                    d = d * factor;
+                    d = d / divisor;
                     return d;
             }
         } catch (Exception e) {
@@ -237,7 +239,7 @@ public class THZReader {
         try {
             JSONArray arr = thzConfig.getJSONArray("statusValues");
             for (int i = 0; i < arr.length(); i++) {
-                if (arr.getJSONObject(i).getString("value").equalsIgnoreCase(dataField)) {
+                if (arr.getJSONObject(i).getString("dataField").equalsIgnoreCase(dataField)) {
                     return arr.getJSONObject(i);
                 }
             }
@@ -254,9 +256,9 @@ public class THZReader {
         try {
             JSONArray arr = thzConfig.getJSONArray("statusValues");
             for (int i = 0; i < arr.length(); i++) {
-                if (arr.getJSONObject(i).has("value")) {
+                if (arr.getJSONObject(i).has("dataField")) {
                     System.out.println(String.format("value: %s -> %s",
-                            arr.getJSONObject(i).getString("value"),
+                            arr.getJSONObject(i).getString("dataField"),
                             arr.getJSONObject(i).getString("description"))
                     );
                 }
@@ -271,6 +273,8 @@ public class THZReader {
         try {
             InetAddress IPAddress = receivePacket.getAddress();
             int port = receivePacket.getPort();
+            JSONObject resultObj = new JSONObject(); // result obj from THZReader
+            JSONObject responseObj = new JSONObject(); // object to return to request
 
             String requestString = new String(receivePacket.getData()).trim();
 
@@ -279,26 +283,50 @@ public class THZReader {
             //TODO: validate JSON-Object
             JSONObject requestObj = new JSONObject(requestString);
 
-            requestObj = (JSONObject) requestObj.get("request");
+            if (requestObj.has("request")) {
 
-            // TODO: parse data and request from THZ
-            JSONObject result = readFromTHZ(requestObj.getString("dataField"));
+                requestObj = (JSONObject) requestObj.get("request");
 
-            JSONObject resultObj = new JSONObject();
-            resultObj.put("timestamp", System.currentTimeMillis());
-            resultObj.put("dataField", requestObj.getString("dataField"));
+                // TODO: parse data and request from THZ
+                JSONObject result = readFromTHZ(requestObj.getString("dataField"));
 
-            if (result == null) {
-                resultObj.put("value", JSONObject.NULL);
-                resultObj.put("unit", "invalid");
-            } else {
-                resultObj.put("value", result.get("result"));
-                resultObj.put("unit", result.getString("unit"));
+                resultObj.put("timestamp", System.currentTimeMillis());
+                resultObj.put("dataField", requestObj.getString("dataField"));
+
+                if (result == null) {
+                    resultObj.put("value", JSONObject.NULL);
+                    resultObj.put("unit", "invalid");
+                } else {
+                    resultObj.put("value", result.get("result"));
+                    resultObj.put("unit", result.getString("unit"));
+                }
+
+                responseObj.put("request", requestObj);
+                responseObj.put("response", resultObj);
+
+            } else if (requestObj.has("requestAll")) {
+                JSONArray resultAr = new JSONArray();
+
+                JSONArray configAr = thzConfig.getJSONArray("statusValues");
+                for (int i = 0; i < configAr.length(); i++) {
+                    resultObj = new JSONObject();
+                    String dataField = configAr.getJSONObject(i).getString("dataField");
+                    JSONObject thzResult = readFromTHZ(dataField);
+
+                    resultObj.put("timestamp", System.currentTimeMillis());
+                    resultObj.put("dataField", dataField);
+
+                    if (thzResult == null) {
+                        resultObj.put("value", JSONObject.NULL);
+                        resultObj.put("unit", "invalid");
+                    } else {
+                        resultObj.put("value", thzResult.get("result"));
+                        resultObj.put("unit", thzResult.getString("unit"));
+                    }
+                    resultAr.put(resultObj);
+                }
+                responseObj.put("dataFields", resultAr);
             }
-
-            JSONObject responseObj = new JSONObject();
-            responseObj.put("request", requestObj);
-            responseObj.put("response", resultObj);
 
             logger.info("UDP-RESPONSE [" + IPAddress.getHostAddress() + "]: " + responseObj.toString());
 
