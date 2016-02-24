@@ -411,5 +411,23 @@
             "divisor": 1,
             "unit": ""
         }
+    ],
+    "virtualValues":[
+        {
+          "dataField": "copRaw",
+          "commandA": "actualPower_Qc",
+          "commandB": "actualPower_Pel",
+          "description": "current cop",
+          "math": "div",
+          "unit": ""
+        },
+        {
+          "dataField": "hc1_spread",
+          "commandA": "hc1_flow_temp",
+          "commandB": "hc1_return_temp",
+          "description": "hc1 spread temperature",
+          "math": "sub",
+          "unit": "K"
+        }
     ]
 }
