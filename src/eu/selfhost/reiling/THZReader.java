@@ -157,6 +157,13 @@ public class THZReader {
                 Object valueA = resultA.get("result");
                 Object valueB = resultB.get("result");
                 Object result = null;
+                
+                if(valueA instanceof Integer){
+                    valueA = ((Integer) valueA * 1.0);
+                }
+                if(valueB instanceof Integer){
+                    valueB = ((Integer) valueB * 1.0);
+                }
 
                 if (math.equalsIgnoreCase("add")) {
                     result = (Double) valueA + (Double) valueB;
@@ -168,15 +175,18 @@ public class THZReader {
                     if ((Double) valueB != 0) {
                         result = (Double) valueA / (Double) valueB;
                     }
+                    else result = (Double) 0.0;
                 } else {
 
                     logger.error("math operation for : [" + value + "] not found");
                 }
                 
-                result = Math.round((Double)result*100.0)/100.0;
+                if (result != null){
+                    result = Math.round((Double)result*100.0)/100.0;
 
-                obj.put("result", result);
-                return obj;
+                    obj.put("result", result);
+                    return obj;
+                }
 
             } else {
 

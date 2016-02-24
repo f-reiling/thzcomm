@@ -428,6 +428,22 @@
           "description": "hc1 spread temperature",
           "math": "sub",
           "unit": "K"
+        },
+        {
+          "dataField": "hc1_effDaily",
+          "commandA": "heatEnergyHCDaily",
+          "commandB": "elecEnergyHCDaily",
+          "description": "daily efficiency of hc heat pump",
+          "math": "div",
+          "unit": ""
+        },
+        {
+          "dataField": "dhw_effDaily",
+          "commandA": "heatEnergyDHWDaily",
+          "commandB": "elecEnergyDHWDaily",
+          "description": "daily efficiency of dhw heat pump",
+          "math": "div",
+          "unit": ""
         }
     ]
 }
