@@ -142,7 +142,46 @@ public class THZReader {
             //return resultObj;
 
         } else {
-            logger.error("value: [" + value + "] not found");
+
+            // TODO: check if virtual command
+            obj = findVirtualField(value);
+
+            if (obj != null) {
+                String commandA = obj.getString("commandA");
+                String commandB = obj.getString("commandB");
+                String math = obj.getString("math");
+
+                JSONObject resultA = readFromTHZ(commandA);
+                JSONObject resultB = readFromTHZ(commandB);
+
+                Object valueA = resultA.get("result");
+                Object valueB = resultB.get("result");
+                Object result = null;
+
+                if (math.equalsIgnoreCase("add")) {
+                    result = (Double) valueA + (Double) valueB;
+                } else if (math.equalsIgnoreCase("sub")) {
+                    result = (Double) valueA - (Double) valueB;
+                } else if (math.equalsIgnoreCase("mul")) {
+                    result = (Double) valueA * (Double) valueB;
+                } else if (math.equalsIgnoreCase("div")) {
+                    if ((Double) valueB != 0) {
+                        result = (Double) valueA / (Double) valueB;
+                    }
+                } else {
+
+                    logger.error("math operation for : [" + value + "] not found");
+                }
+                
+                result = Math.round((Double)result*100.0)/100.0;
+
+                obj.put("result", result);
+                return obj;
+
+            } else {
+
+                logger.error("value: [" + value + "] not found");
+            }
         }
         return null;
     }
@@ -250,11 +289,43 @@ public class THZReader {
         return null;
     }
 
+    private JSONObject findVirtualField(String dataField) {
+        dataField = dataField.trim();
+        try {
+            JSONArray arr = thzConfig.getJSONArray("virtualValues");
+            for (int i = 0; i < arr.length(); i++) {
+                if (arr.getJSONObject(i).getString("dataField").equalsIgnoreCase(dataField)) {
+                    return arr.getJSONObject(i);
+                }
+            }
+        } catch (JSONException ex) {
+            //Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
+    }
+
     private void listAllValues() {
         System.out.println("--------------------------------------------------");
         System.out.println("Available THZ values:");
         try {
             JSONArray arr = thzConfig.getJSONArray("statusValues");
+            for (int i = 0; i < arr.length(); i++) {
+                if (arr.getJSONObject(i).has("dataField")) {
+                    System.out.println(String.format("value: %s -> %s",
+                            arr.getJSONObject(i).getString("dataField"),
+                            arr.getJSONObject(i).getString("description"))
+                    );
+                }
+            }
+        } catch (JSONException ex) {
+            //Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("--------------------------------------------------");
+        
+        System.out.println("Virtual values:");
+        try {
+            JSONArray arr = thzConfig.getJSONArray("virtualValues");
             for (int i = 0; i < arr.length(); i++) {
                 if (arr.getJSONObject(i).has("dataField")) {
                     System.out.println(String.format("value: %s -> %s",
