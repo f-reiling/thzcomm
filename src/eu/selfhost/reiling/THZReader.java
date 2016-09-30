@@ -287,9 +287,15 @@ public class THZReader {
         dataField = dataField.trim();
         try {
             JSONArray arr = thzConfig.getJSONArray("statusValues");
+            JSONArray arr2 = thzConfig.getJSONArray("setValues");
             for (int i = 0; i < arr.length(); i++) {
                 if (arr.getJSONObject(i).getString("dataField").equalsIgnoreCase(dataField)) {
                     return arr.getJSONObject(i);
+                }
+            }
+            for (int i = 0; i < arr2.length(); i++) {
+                if (arr2.getJSONObject(i).getString("dataField").equalsIgnoreCase(dataField)) {
+                    return arr2.getJSONObject(i);
                 }
             }
         } catch (JSONException ex) {
@@ -336,6 +342,22 @@ public class THZReader {
         System.out.println("Virtual values:");
         try {
             JSONArray arr = thzConfig.getJSONArray("virtualValues");
+            for (int i = 0; i < arr.length(); i++) {
+                if (arr.getJSONObject(i).has("dataField")) {
+                    System.out.println(String.format("value: %s -> %s",
+                            arr.getJSONObject(i).getString("dataField"),
+                            arr.getJSONObject(i).getString("description"))
+                    );
+                }
+            }
+        } catch (JSONException ex) {
+            //Logger.getLogger(THZReader.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("--------------------------------------------------");
+        
+        System.out.println("Set values:");
+        try {
+            JSONArray arr = thzConfig.getJSONArray("setValues");
             for (int i = 0; i < arr.length(); i++) {
                 if (arr.getJSONObject(i).has("dataField")) {
                     System.out.println(String.format("value: %s -> %s",
@@ -407,6 +429,40 @@ public class THZReader {
                     resultAr.put(resultObj);
                 }
                 responseObj.put("dataFields", resultAr);
+            } else if (requestObj.has("setValue")) {
+                // TODO: set value in THZ
+                JSONObject setObj = (JSONObject) requestObj.get("setValue");
+                
+                // TODO: check unit, min/max
+
+                // TODO: parse data and request from THZ
+               /* JSONObject result = readFromTHZ(requestObj.getString("dataField"));
+
+                resultObj.put("timestamp", System.currentTimeMillis());
+                resultObj.put("dataField", requestObj.getString("dataField"));
+
+                if (result == null) {
+                    resultObj.put("value", JSONObject.NULL);
+                    resultObj.put("unit", "invalid");
+                } else {
+                    resultObj.put("value", result.get("result"));
+                    resultObj.put("unit", result.getString("unit"));
+                }
+
+                responseObj.put("request", requestObj);
+                responseObj.put("response", resultObj);*/
+            } else if (requestObj.has("rawCommand")) {
+                // {"rawCommand": {"command" : <COMMAND>, "getSet": "true/false"} } }
+                // TODO: send raw command to THZ
+                JSONObject setObj = (JSONObject) requestObj.get("rawCommand");
+                
+                if (setObj.getString("getSet").contentEquals("true")){
+                    String response = thz.requestFromThz(setObj.getString("command"), Boolean.TRUE);
+                    responseObj.put("result", response);
+                } else {
+                    String response = thz.requestFromThz(setObj.getString("command"), Boolean.FALSE);
+                    responseObj.put("result", response);
+                }
             }
 
             logger.info("UDP-RESPONSE [" + IPAddress.getHostAddress() + "]: " + responseObj.toString());

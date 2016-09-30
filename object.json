@@ -56,6 +56,16 @@
             "unit": "°C"
         },
         {
+            "dataField": "dhw_set_temp",
+            "description": "current hot water set temperature",
+            "command": "F3",
+            "start": 10,
+            "length": 4,
+            "type": "hex2dbl",
+            "divisor": 10,
+            "unit": "°C"
+        },
+        {
             "dataField": "outside_temp",
             "description": "current outside temperature",
             "command": "F3",
@@ -444,6 +454,32 @@
           "description": "daily efficiency of dhw heat pump",
           "math": "div",
           "unit": ""
+        }
+    ],    
+    "setValues": [
+        {
+            "dataField": "HC1DaySetTemp",
+            "description": "HC1 set temp for day mode",
+            "command": "0B0005",
+            "start": 6,
+            "length": 4,
+            "type": "hex2dbl",
+            "divisor": 10,
+            "unit": "°C",
+            "min": 15,
+            "max": 30
+        },
+        {
+            "dataField": "opMode",
+            "description": "operation mode",
+            "command": "0A0112",
+            "start": 6,
+            "length": 2,
+            "type": "hex2int",
+            "divisor": 1,
+            "unit": "",
+            "min": 15,
+            "max": 30
         }
     ]
 }

@@ -37,6 +37,7 @@ public class THZComm {
         }
 
     }
+    
 
 // <editor-fold defaultstate="collapsed" desc=" CONSTANTS ">
     private static final String COM_STX = "02";
@@ -160,6 +161,10 @@ public class THZComm {
      * @return returns the data from THZ (without header/checksum/footer)
      */
     public String requestFromThz(String command) {
+        return requestFromThz(command, false);
+    }
+    
+    public String requestFromThz(String command, Boolean isSet) {
 
         logger.debug("THZ-command: " + command);
 
@@ -180,7 +185,7 @@ public class THZComm {
         }
 
         // 3. send command
-        writeToThz(encodeThzDataMsg(command));
+        writeToThz(encodeThzDataMsg(command, isSet));
 
         // 4. wait for ack + "02" -> means data available
         if (readFromThz(COM_ACK + COM_STX, COM_TIMEOUT) == null) {
@@ -276,8 +281,13 @@ public class THZComm {
      * @param msg
      * @return
      */
-    static String encodeThzDataMsg(String msg) {
-        StringBuilder dataMsg = new StringBuilder("0100");
+    static String encodeThzDataMsg(String msg, Boolean isSet) {
+        String header = "0100";
+        if (isSet) {
+            header = "0180";
+        } 
+        
+        StringBuilder dataMsg = new StringBuilder(header);
         dataMsg.append("FF");
         //msg = msg.replace("10", "1010");
         //msg = msg.replace("2B", "2B18");
@@ -289,7 +299,7 @@ public class THZComm {
         String checkSumStr = bytesToHex(new byte[]{(byte) checksum});
         dataMsg.replace(4, 6, checkSumStr);
 
-        dataMsg = new StringBuilder("0100");
+        dataMsg = new StringBuilder(header);
         dataMsg.append(checkSumStr);
         
         msg = replaceDataString(msg, "10", "1010");
