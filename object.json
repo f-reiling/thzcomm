@@ -126,6 +126,16 @@
             "unit": "°C"
         },
         {
+            "dataField": "seasonMode",
+            "description": "Season mode (summer/winter)",
+            "command": "F4",
+            "start": 36,
+            "length": 2,
+            "type": "hex2int",
+            "divisor": 1,
+            "unit": ""
+        },
+        {
             "dataField": "heatEnergyDHWDaily",
             "description": "daily amount of heat. Energy used for DHW",
             "command": "0A092A",
